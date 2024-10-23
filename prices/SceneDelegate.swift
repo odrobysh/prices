@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  prices
-//
-//  Created by Sasha on 23.10.2024.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
