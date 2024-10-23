@@ -16,13 +16,81 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="W9p-Rc-Zgy">
+                                <rect key="frame" x="24.000000000000014" y="71" width="232.33333333333337" height="34"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T31-MT-UHI">
+                                <rect key="frame" x="268.33333333333331" y="71" width="100.66666666666669" height="34.333333333333343"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Subscribe"/>
+                                <connections>
+                                    <action selector="subscribe" destination="BYZ-38-t0r" eventType="touchUpInside" id="rpV-08-k7v"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Market data:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H0H-Mu-k8J">
+                                <rect key="frame" x="24.000000000000007" y="113" width="95.666666666666686" height="20.333333333333343"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="aQM-ug-H2y">
+                                <rect key="frame" x="24" y="141.33333333333334" width="345" height="40.666666666666657"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="31w-YM-NmA">
+                                        <rect key="frame" x="0.0" y="0.0" width="115" height="40.666666666666664"/>
+                                        <string key="text">Symbol:
+BTC/USD</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gLQ-Ya-KRj">
+                                        <rect key="frame" x="115" y="0.0" width="115" height="40.666666666666664"/>
+                                        <string key="text">Symbol:
+BTC/USD</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6M0-qP-MBr">
+                                        <rect key="frame" x="230" y="0.0" width="115" height="40.666666666666664"/>
+                                        <string key="text">Symbol:
+BTC/USD</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="T31-MT-UHI" firstAttribute="centerY" secondItem="W9p-Rc-Zgy" secondAttribute="centerY" id="571-SQ-o8I"/>
+                            <constraint firstItem="H0H-Mu-k8J" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="Fnp-eO-GJo"/>
+                            <constraint firstItem="W9p-Rc-Zgy" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="H3l-sa-HRP"/>
+                            <constraint firstItem="H0H-Mu-k8J" firstAttribute="top" secondItem="W9p-Rc-Zgy" secondAttribute="bottom" constant="8" symbolic="YES" id="R3C-KJ-Nxi"/>
+                            <constraint firstItem="T31-MT-UHI" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="trailing" constant="12" id="UQW-Pu-8Pf"/>
+                            <constraint firstItem="aQM-ug-H2y" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="bQG-D0-VHb"/>
+                            <constraint firstItem="aQM-ug-H2y" firstAttribute="top" secondItem="H0H-Mu-k8J" secondAttribute="bottom" constant="8" symbolic="YES" id="rEl-pf-1x6"/>
+                            <constraint firstItem="aQM-ug-H2y" firstAttribute="trailing" secondItem="T31-MT-UHI" secondAttribute="trailing" id="sTv-hm-3O0"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="T31-MT-UHI" secondAttribute="trailing" constant="24" id="vI8-AD-5Ca"/>
+                            <constraint firstItem="W9p-Rc-Zgy" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="wCC-VO-O2u"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="input" destination="W9p-Rc-Zgy" id="o2e-L3-JwX"/>
+                        <outlet property="price" destination="gLQ-Ya-KRj" id="ZjZ-ph-2h8"/>
+                        <outlet property="symbol" destination="31w-YM-NmA" id="j3N-cA-XWF"/>
+                        <outlet property="time" destination="6M0-qP-MBr" id="3Zc-lj-mJB"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="121" y="4"/>
+            <point key="canvasLocation" x="119.84732824427481" y="3.5211267605633805"/>
         </scene>
     </scenes>
     <resources>
