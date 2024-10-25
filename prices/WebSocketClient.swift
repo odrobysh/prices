@@ -14,9 +14,6 @@ class WebSocketClient {
     func connect() {
         let request = URLRequest(url: URL(string: "\(webSocketURL)\(accessToken)")!)
         
-        // Add the Authorization header with the token
-        //request.addValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        
         // Initialize the WebSocket task
         webSocketTask = urlSession.webSocketTask(with: request)
         
