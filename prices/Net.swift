@@ -16,6 +16,16 @@ struct InstrumentsDto: Decodable {
     let data: [Instrument]
 }
 
+struct Quotation: Decodable {
+    let timestamp: String
+    let price: Double
+}
+
+struct InstrumentUpdateDto: Decodable {
+    let ask: Quotation?
+    let bid: Quotation?
+}
+
 struct SubscribeMessageDto: Encodable {
     let type: String
     let id: String

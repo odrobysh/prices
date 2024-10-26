@@ -20,7 +20,11 @@ class PricesViewController: UIViewController {
     
     //mock
     var count = 0
-    var subscribed = false
+    var subscribed = false {
+        didSet {
+            displayIsSubscribed()
+        }
+    }
     
     var webSocketClient: WebSocketClient?
     var accessToken: String? {
@@ -54,11 +58,28 @@ class PricesViewController: UIViewController {
         if let selectedInstrument {
             input.text = selectedInstrument.description
             subscribeButton.isEnabled = true
+            symbol.text = "Symbol\n\(selectedInstrument.symbol)"
         }
+        
+        
+    }
+    
+    private func displayIsSubscribed() {
+        subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
+        
+//        if subscribed {
+//            
+//            symbol.text = "Symbol\n\(selectedInstrument?.symbol ?? "")"
+//        } else {
+//            symbol.text = "Symbol\n--"
+//            price.text = "Price\n--"
+//            time.text = "Time\n--"
+//        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+    
         // view.backgroundColor = .red
         
 //        let recognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
@@ -69,9 +90,9 @@ class PricesViewController: UIViewController {
         
         // Mock
         input.text = "BTC/USD"
-        symbol.text = "Symbol\nBTC/USD"
-        price.text = "Price\n$48.126,333"
-        time.text = "Time\nAug 7, 9:45 AM"
+        symbol.text = "Symbol\n--"
+        price.text = "Price\n--"
+        time.text = "Time\n--"
     }
     
     @objc func inputTap(_ sender: UITapGestureRecognizer) {
@@ -89,7 +110,7 @@ class PricesViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        subscribed = false
         subscribeButton.isEnabled = false
         getAccessToken()
        
@@ -128,7 +149,26 @@ class PricesViewController: UIViewController {
     
     private func handleMessage(_ message: String) {
         print("Message received in ViewController: \(message)")
+        
+        guard let instrumentUpdate = try? JSONDecoder().decode(InstrumentUpdateDto.self, from: Data(message.utf8)),
+              let quotation = instrumentUpdate.ask ?? instrumentUpdate.bid
+        else {
+            return
+        }
+        
+        DispatchQueue.main.async { () -> Void in
+            // call API here
+            self.price.text = "Price\n\(quotation.price)"
+            self.time.text = "Time\n\(quotation.timestamp)"
+        }
+        
+        
+        
+        //time.text = "Time\nAug 7, 9:45 AM"
+        
+        
     }
+    
     
     @IBAction func subscribe() {
         print("subscribe")
@@ -142,7 +182,6 @@ class PricesViewController: UIViewController {
                 
                 webSocketClient?.sendMessage(jsonString)
                 subscribed.toggle()
-                subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
             }
  
         
