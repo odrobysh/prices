@@ -84,6 +84,7 @@ BTC/USD</string>
                     <connections>
                         <outlet property="input" destination="W9p-Rc-Zgy" id="o2e-L3-JwX"/>
                         <outlet property="price" destination="gLQ-Ya-KRj" id="ZjZ-ph-2h8"/>
+                        <outlet property="subscribeButton" destination="T31-MT-UHI" id="d1x-kq-bvF"/>
                         <outlet property="symbol" destination="31w-YM-NmA" id="j3N-cA-XWF"/>
                         <outlet property="time" destination="6M0-qP-MBr" id="3Zc-lj-mJB"/>
                     </connections>

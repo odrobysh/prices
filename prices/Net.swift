@@ -28,7 +28,6 @@ struct SubscribeMessageDto: Encodable {
 public struct Net {
     static let uri = "https://platform.fintacharts.com"
     static var getAccessToken: () async throws -> String = {
-        //let uri = "https://platform.fintacharts.com"
         let url = URL(string: "\(uri)/identity/realms/fintatech/protocol/openid-connect/token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

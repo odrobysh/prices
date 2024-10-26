@@ -5,6 +5,7 @@ class WebSocketClient {
     private let urlSession: URLSession
     private let webSocketURL = "wss://platform.fintacharts.com/api/streaming/ws/v1/realtime?token="
     private let accessToken: String
+    var onMessageReceived: ((String) -> Void)?
 
     init(accessToken: String) {
         self.accessToken = accessToken
@@ -31,6 +32,7 @@ class WebSocketClient {
                 switch message {
                 case .string(let text):
                     print("Received text: \(text)")
+                    self?.onMessageReceived?(text)
                 case .data(let data):
                     print("Received binary data: \(data)")
                 @unknown default:
