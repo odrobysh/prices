@@ -17,7 +17,7 @@ struct InstrumentsDto: Decodable {
 }
 
 struct Quotation: Decodable {
-    let timestamp: String
+    let timestamp: Date
     let price: Double
 }
 

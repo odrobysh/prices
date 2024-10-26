@@ -59,37 +59,20 @@ class PricesViewController: UIViewController {
             input.text = selectedInstrument.description
             subscribeButton.isEnabled = true
             symbol.text = "Symbol\n\(selectedInstrument.symbol)"
+            price.text = "Price\n--"
+            time.text = "Time\n--"
         }
-        
-        
     }
     
     private func displayIsSubscribed() {
         subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
-        
-//        if subscribed {
-//            
-//            symbol.text = "Symbol\n\(selectedInstrument?.symbol ?? "")"
-//        } else {
-//            symbol.text = "Symbol\n--"
-//            price.text = "Price\n--"
-//            time.text = "Time\n--"
-//        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        // view.backgroundColor = .red
-        
-//        let recognizer = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
-//        view.addGestureRecognizer(recognizer)
         
         input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
         
-        
-        // Mock
-        input.text = "BTC/USD"
         symbol.text = "Symbol\n--"
         price.text = "Price\n--"
         time.text = "Time\n--"
@@ -148,25 +131,25 @@ class PricesViewController: UIViewController {
     }
     
     private func handleMessage(_ message: String) {
-        print("Message received in ViewController: \(message)")
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXXXX"
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+
+        guard let instrumentUpdate = try? decoder.decode(InstrumentUpdateDto.self, from: message.data(using: .utf8)!) else { return }
         
-        guard let instrumentUpdate = try? JSONDecoder().decode(InstrumentUpdateDto.self, from: Data(message.utf8)),
-              let quotation = instrumentUpdate.ask ?? instrumentUpdate.bid
-        else {
-            return
-        }
+        guard let quotation = instrumentUpdate.ask ?? instrumentUpdate.bid else { return }
         
         DispatchQueue.main.async { () -> Void in
-            // call API here
             self.price.text = "Price\n\(quotation.price)"
-            self.time.text = "Time\n\(quotation.timestamp)"
+            self.time.text = "Time\n\(self.formattedTime(from: quotation.timestamp))"
         }
-        
-        
-        
-        //time.text = "Time\nAug 7, 9:45 AM"
-        
-        
+    }
+    
+    private func formattedTime(from date: Date) -> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, h:mm a"
+        return formatter.string(from: date)
     }
     
     
@@ -183,10 +166,7 @@ class PricesViewController: UIViewController {
                 webSocketClient?.sendMessage(jsonString)
                 subscribed.toggle()
             }
- 
-        
-        
-        
+
         // mock
         
         //        let actionClosure = { (action: UIAction) in
