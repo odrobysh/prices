@@ -15,13 +15,8 @@ class WebSocketClient {
     func connect() {
         let request = URLRequest(url: URL(string: "\(webSocketURL)\(accessToken)")!)
         
-        // Initialize the WebSocket task
         webSocketTask = urlSession.webSocketTask(with: request)
-        
-        // Start the WebSocket connection
         webSocketTask?.resume()
-        
-        // Start receiving messages
         receiveMessage()
     }
 
@@ -62,17 +57,3 @@ class WebSocketClient {
         webSocketTask?.cancel(with: .goingAway, reason: nil)
     }
 }
-
-// Usage:
-//
-//let webSocketURL = URL(string: "wss://your-websocket-server.com")!
-//let authToken = "your-auth-token"
-//
-//let client = WebSocketClient(url: webSocketURL, authToken: authToken)
-//client.connect()
-//
-//// Send a message after connecting
-//client.sendMessage("Hello WebSocket!")
-//
-//// Close the connection when done
-//client.disconnect()
