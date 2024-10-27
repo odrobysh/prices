@@ -22,7 +22,7 @@ public struct Net {
     }
     
     static var getInstruments: (_ token: String) async throws -> [Instrument] = { token in
-        let url = URL(string: "\(uri)/api/instruments/v1/instruments?provider=oanda&kind=forex")!
+        let url = URL(string: "\(uri)/api/instruments/v1/instruments?provider=simulation&kind=forex")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")

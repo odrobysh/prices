@@ -9,11 +9,15 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var subscribeButton: UIButton!
     @IBOutlet weak var chartView: ChartView!
     
+    private let emptyValue = "--"
+    
     //mock
     var count = 0
+    
+    
     var subscribed = false {
         didSet {
-            displayIsSubscribed()
+            subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
         }
     }
     
@@ -27,11 +31,7 @@ class PricesViewController: UIViewController {
         }
     }
     
-    var instruments: [Instrument] = [] {
-        didSet {
-            displayDefaultInstrument()
-        }
-    }
+    var instruments: [Instrument] = []
     
     var selectedInstrument: Instrument? {
         didSet {
@@ -39,38 +39,14 @@ class PricesViewController: UIViewController {
         }
     }
     
-    private func displayDefaultInstrument() {
-        if let defaultInstrument = instruments.first {
-            selectedInstrument = defaultInstrument
-        }
-    }
-    
-    private func displaySelectedInstrument() {
-        if let selectedInstrument {
-            input.text = selectedInstrument.description
-            subscribeButton.isEnabled = true
-            symbol.text = "Symbol\n\(selectedInstrument.symbol)"
-            price.text = "Price\n--"
-            time.text = "Time\n--"
-        }
-        
-        getBars()
-    }
-    
-    
-    
-    private func displayIsSubscribed() {
-        subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        displaySymbol(emptyValue)
+        displayPrice(emptyValue)
+        displayTime(emptyValue)
         input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
-        
-        symbol.text = "Symbol\n--"
-        price.text = "Price\n--"
-        time.text = "Time\n--"
     }
     
     @objc func inputTap(_ sender: UITapGestureRecognizer) {
@@ -119,6 +95,7 @@ class PricesViewController: UIViewController {
     
     @MainActor func setInstruments(_ newInstruments: [Instrument]) {
         instruments = newInstruments
+        displayDefaultInstrument()
     }
     
     private func getBars() {
@@ -137,18 +114,18 @@ class PricesViewController: UIViewController {
         chartView.updateChart(bars)
     }
     
-    func connectWebSocket(token: String) {
+    private func connectWebSocket(token: String) {
         if webSocketClient == nil {
             webSocketClient = WebSocketClient(accessToken: token)
             webSocketClient?.connect()
             
             webSocketClient?.onMessageReceived = { [weak self] message in
-                self?.handleMessage(message)
+                self?.updateMarketData(message)
             }
         }
     }
     
-    private func handleMessage(_ message: String) {
+    private func updateMarketData(_ message: String) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXXXX"
         let decoder = JSONDecoder()
@@ -164,26 +141,69 @@ class PricesViewController: UIViewController {
         }
     }
     
-    private func formattedTime(from date: Date) -> String{
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, h:mm a"
-        return formatter.string(from: date)
-    }
-    
-    
     @IBAction func subscribe() {
-        print("subscribe")
-        
         guard let instrumentId = selectedInstrument?.id else { return }
         
-        let message = SubscribeMessageDto(type: "l1-subscription", id: "1", instrumentId: instrumentId, provider: "simulation", subscribe: !subscribed, kinds: ["ask", "bid", "last"])
+        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: !subscribed)
+        sendSubscriptionMessage(message)
+    }
+    
+    private func unsubscribe() {
+        guard let instrumentId = selectedInstrument?.id else { return }
         
+        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: false)
+        sendSubscriptionMessage(message)
+    }
+    
+    private func sendSubscriptionMessage(_ message: SubscribeMessageDto) {
         if let jsonData = try? JSONEncoder().encode(message) {
             let jsonString = String(data: jsonData, encoding: .utf8)!
             
             webSocketClient?.sendMessage(jsonString)
             subscribed.toggle()
         }
+    }
+    
+    private func subscriptionMessage(instrumentId: String, subscribe: Bool) -> SubscribeMessageDto {
+        return SubscribeMessageDto(type: "l1-subscription", id: "1", instrumentId: instrumentId, provider: "simulation", subscribe: subscribe, kinds: ["ask", "bid", "last"])
+    }
+    
+    private func displaySelectedInstrument() {
+        if let selectedInstrument {
+            input.text = selectedInstrument.description
+            subscribeButton.isEnabled = true
+            displaySymbol(selectedInstrument.symbol)
+            displayPrice(emptyValue)
+            displayTime(emptyValue)
+            
+            // unsubscribe
+        }
+        
+        getBars()
+    }
+    
+    private func displaySymbol(_ symbol: String) {
+        self.symbol.text = "Symbol\n\(symbol)"
+    }
+    
+    private func displayPrice(_ price: String) {
+        self.price.text = "Price\n\(price)"
+    }
+    
+    private func displayTime(_ time: String) {
+        self.time.text = "Time\n\(time)"
+    }
+    
+    private func displayDefaultInstrument() {
+        if let defaultInstrument = instruments.first {
+            selectedInstrument = defaultInstrument
+        }
+    }
+    
+    private func formattedTime(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, h:mm a"
+        return formatter.string(from: date)
     }
 }
 
