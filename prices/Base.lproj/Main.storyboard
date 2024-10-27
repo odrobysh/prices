@@ -27,7 +27,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Subscribe"/>
                                 <connections>
-                                    <action selector="subscribe" destination="BYZ-38-t0r" eventType="touchUpInside" id="rpV-08-k7v"/>
+                                    <action selector="subscribeButtonTap" destination="BYZ-38-t0r" eventType="touchUpInside" id="rpV-08-k7v"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Market data:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H0H-Mu-k8J">

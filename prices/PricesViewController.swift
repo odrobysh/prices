@@ -39,7 +39,6 @@ class PricesViewController: UIViewController {
         }
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,6 +46,17 @@ class PricesViewController: UIViewController {
         displayPrice(emptyValue)
         displayTime(emptyValue)
         input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        subscribed = false
+        subscribeButton.isEnabled = false
+        getAccessToken()
+    }
+    
+    @IBAction func subscribeButtonTap() {
+        subscribe(!subscribed)
     }
     
     @objc func inputTap(_ sender: UITapGestureRecognizer) {
@@ -60,13 +70,6 @@ class PricesViewController: UIViewController {
         }
         
         selectedInstrument = instruments[count]
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        subscribed = false
-        subscribeButton.isEnabled = false
-        getAccessToken()
     }
     
     private func getAccessToken() {
@@ -98,7 +101,7 @@ class PricesViewController: UIViewController {
         displayDefaultInstrument()
     }
     
-    private func getBars() {
+    private func updateBars() {
         guard let accessToken, let selectedInstrumentId = selectedInstrument?.id else { return }
         
         Task.detached { [weak self] in
@@ -141,17 +144,10 @@ class PricesViewController: UIViewController {
         }
     }
     
-    @IBAction func subscribe() {
+    private func subscribe(_ subscribe: Bool) {
         guard let instrumentId = selectedInstrument?.id else { return }
         
-        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: !subscribed)
-        sendSubscriptionMessage(message)
-    }
-    
-    private func unsubscribe() {
-        guard let instrumentId = selectedInstrument?.id else { return }
-        
-        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: false)
+        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: subscribe)
         sendSubscriptionMessage(message)
     }
     
@@ -176,10 +172,10 @@ class PricesViewController: UIViewController {
             displayPrice(emptyValue)
             displayTime(emptyValue)
             
-            // unsubscribe
+            subscribe(false)
         }
         
-        getBars()
+        updateBars()
     }
     
     private func displaySymbol(_ symbol: String) {
