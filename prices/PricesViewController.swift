@@ -1,7 +1,8 @@
 import UIKit
 
-// unsubscribeFromPrevious instrument (right before selection)
 // connect picker
+// unsubscribeFromPrevious instrument (right before selection)
+
 // refactor
 
 class PricesViewController: UIViewController {
@@ -63,6 +64,9 @@ class PricesViewController: UIViewController {
         chartView.layer.borderWidth = 2
         chartView.layer.borderColor = UIColor.black.cgColor
         chartView.layer.cornerRadius = 20
+        
+        input.layer.borderWidth = 2
+        input.layer.borderColor = UIColor.black.cgColor
         
         subscribed = false
         subscribeButton.isEnabled = false

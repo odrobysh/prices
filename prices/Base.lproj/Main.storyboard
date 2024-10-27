@@ -18,12 +18,15 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="W9p-Rc-Zgy">
-                                <rect key="frame" x="24.000000000000014" y="71" width="232.33333333333337" height="34"/>
+                                <rect key="frame" x="24" y="71" width="189" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T31-MT-UHI">
-                                <rect key="frame" x="268.33333333333331" y="71" width="100.66666666666669" height="34.333333333333343"/>
+                                <rect key="frame" x="229" y="71" width="140" height="34.333333333333343"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="140" id="hbo-Ag-GUv"/>
+                                </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Subscribe"/>
                                 <connections>
@@ -90,7 +93,7 @@ BTC/USD</string>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="H0H-Mu-k8J" secondAttribute="trailing" constant="24" id="G1i-dM-4ZN"/>
                             <constraint firstItem="W9p-Rc-Zgy" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="H3l-sa-HRP"/>
                             <constraint firstItem="H0H-Mu-k8J" firstAttribute="top" secondItem="W9p-Rc-Zgy" secondAttribute="bottom" constant="8" symbolic="YES" id="R3C-KJ-Nxi"/>
-                            <constraint firstItem="T31-MT-UHI" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="trailing" constant="12" id="UQW-Pu-8Pf"/>
+                            <constraint firstItem="T31-MT-UHI" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="trailing" constant="16" id="WOw-ZY-P9F"/>
                             <constraint firstItem="aQM-ug-H2y" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="bQG-D0-VHb"/>
                             <constraint firstItem="eDP-P4-LV6" firstAttribute="trailing" secondItem="H0H-Mu-k8J" secondAttribute="trailing" id="ipE-Y4-anp"/>
                             <constraint firstItem="eDP-P4-LV6" firstAttribute="top" secondItem="aQM-ug-H2y" secondAttribute="bottom" constant="8" symbolic="YES" id="pSp-qg-vGl"/>
