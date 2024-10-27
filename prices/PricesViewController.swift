@@ -138,10 +138,7 @@ class PricesViewController: UIViewController {
     }
     
     @MainActor func setBars(_ bars: [Bar]) {
-        // todo: draw chart
-        
-        // drawSimpleChart(bars)
-        chartView.drawSimpleChart(bars)
+        chartView.updateChart(bars)
     }
     
 

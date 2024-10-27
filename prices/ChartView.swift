@@ -1,60 +1,75 @@
 import UIKit
+import DGCharts
+import Charts
+
 class ChartView: UIView {
+    private var candleChartView: CandleStickChartView!
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
     }
     
-    //initWithCode to init view from xib or storyboard
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setupView()
     }
-    
-    //common func to init our view
-    private func setupView() {
-        backgroundColor = .red
-    }
-    
-    // temp
-    func drawSimpleChart(_ bars: [Bar]) {
-        // high
-        guard let max = bars.map(\.h).max(),
-              let min = bars.map(\.l).min()
-        else { return }
-        
-        let ydelta = max - min
-        
-    }
-    
-    func displayChart() {//dots: [Dot]) {
-        let pt1 = CGPoint(x: 20, y: 10)
-        let pt2 = CGPoint(x: 70, y: 150)
-        let pt3 = CGPoint(x: 120, y: 120)
-        let pt4 = CGPoint(x: 170, y: 160)
-        let pt5 = CGPoint(x: 220, y: 200)
-        let pt6 = CGPoint(x: 270, y: 260)
-        
-        let path = UIBezierPath()
-        path.move(to: pt1)
-        path.addLine(to: pt2)
-        path.addLine(to: pt3)
-        path.addLine(to: pt4)
-        path.addLine(to: pt5)
-        path.addLine(to: pt6)
 
-        path.stroke()
-        //path.close()
+    private func setupView() {
+        candleChartView = CandleStickChartView()
+        candleChartView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(candleChartView)
+        setConstraints()
+        candleChartView.xAxis.labelPosition = .bottom
+        candleChartView.xAxis.valueFormatter = DateValueFormatter()
+        candleChartView.xAxis.labelCount = 5
+    }
+    
+    private func setConstraints() {
+        NSLayoutConstraint.activate([
+            candleChartView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            candleChartView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            candleChartView.topAnchor.constraint(equalTo: topAnchor),
+            candleChartView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+    
+    func updateChart(_ bars: [Bar]) {
         
-        //Shape part
-        let shape = CAShapeLayer()
-        shape.path = path.cgPath
-        shape.lineWidth = 10
-        shape.fillColor = UIColor.clear.cgColor
-        shape.strokeColor = UIColor.green.cgColor
-        layer.addSublayer(shape)
+        var candleEntries: [CandleChartDataEntry] = []
         
+        for bar in bars {
+            let entry = CandleChartDataEntry(x: bar.t.timeIntervalSince1970,
+                                             shadowH: bar.h,
+                                             shadowL: bar.l,
+                                             open: bar.o,
+                                             close: bar.c)
+            candleEntries.append(entry)
+        }
+        
+        let candleDataSet = CandleChartDataSet(entries: candleEntries, label: "historical prices")
+        candleDataSet.colors = [NSUIColor.blue]
+        candleDataSet.decreasingColor = NSUIColor.red
+        candleDataSet.increasingColor = NSUIColor.green
+        candleDataSet.decreasingFilled = true
+        candleDataSet.increasingFilled = true
+        
+        let candleData = CandleChartData(dataSet: candleDataSet)
+        candleChartView.data = candleData
     }
 }
 
+class DateValueFormatter: AxisValueFormatter {
+    let dateFormatter: DateFormatter
+
+    init() {
+        dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "h:mm"
+    }
+
+    func stringForValue(_ value: Double, axis: AxisBase?) -> String {
+        let date = Date(timeIntervalSince1970: value)
+        return dateFormatter.string(from: date)
+    }
+}
 

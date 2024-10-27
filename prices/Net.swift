@@ -80,7 +80,7 @@ public struct Net {
     }
     
     static var getBars: (_ token: String, _ instrumentId: String) async throws -> [Bar] = { token, instrumentId in
-        let url = URL(string: "\(uri)/api/bars/v1/bars/count-back?instrumentId=\(instrumentId)&provider=simulation&interval=1&periodicity=minute&barsCount=10")!
+        let url = URL(string: "\(uri)/api/bars/v1/bars/count-back?instrumentId=\(instrumentId)&provider=simulation&interval=1&periodicity=minute&barsCount=100")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
