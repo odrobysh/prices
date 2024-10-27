@@ -1,15 +1,5 @@
 import UIKit
 
-extension PricesViewController {
-    @MainActor func setAccessToken(_ token: String) {
-        accessToken = token
-    }
-    
-    @MainActor func setInstruments(_ newInstruments: [Instrument]) {
-        instruments = newInstruments
-    }
-}
-
 class PricesViewController: UIViewController {
     
     @IBOutlet weak var input: UITextField!
@@ -67,7 +57,7 @@ class PricesViewController: UIViewController {
         getBars()
     }
     
-
+    
     
     private func displayIsSubscribed() {
         subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
@@ -101,8 +91,6 @@ class PricesViewController: UIViewController {
         subscribed = false
         subscribeButton.isEnabled = false
         getAccessToken()
-        // chartView.displayChart()
-       
     }
     
     private func getAccessToken() {
@@ -115,6 +103,10 @@ class PricesViewController: UIViewController {
         }
     }
     
+    @MainActor func setAccessToken(_ token: String) {
+        accessToken = token
+    }
+    
     private func getInstruments(token: String) {
         Task.detached { [weak self] in
             let instruments = try? await Net.getInstruments(token)
@@ -123,6 +115,10 @@ class PricesViewController: UIViewController {
                 await self?.setInstruments(instruments)
             }
         }
+    }
+    
+    @MainActor func setInstruments(_ newInstruments: [Instrument]) {
+        instruments = newInstruments
     }
     
     private func getBars() {
@@ -141,8 +137,6 @@ class PricesViewController: UIViewController {
         chartView.updateChart(bars)
     }
     
-
-    
     func connectWebSocket(token: String) {
         if webSocketClient == nil {
             webSocketClient = WebSocketClient(accessToken: token)
@@ -159,7 +153,7 @@ class PricesViewController: UIViewController {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXXXX"
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
-
+        
         guard let instrumentUpdate = try? decoder.decode(InstrumentUpdateDto.self, from: message.data(using: .utf8)!) else { return }
         
         guard let quotation = instrumentUpdate.ask ?? instrumentUpdate.bid else { return }
@@ -179,32 +173,17 @@ class PricesViewController: UIViewController {
     
     @IBAction func subscribe() {
         print("subscribe")
-
-            guard let instrumentId = selectedInstrument?.id else { return }
-            
-            let message = SubscribeMessageDto(type: "l1-subscription", id: "1", instrumentId: instrumentId, provider: "simulation", subscribe: !subscribed, kinds: ["ask", "bid", "last"])
-            
-            if let jsonData = try? JSONEncoder().encode(message) {
-                let jsonString = String(data: jsonData, encoding: .utf8)!
-                
-                webSocketClient?.sendMessage(jsonString)
-                subscribed.toggle()
-            }
-
-        // mock
         
-        //        let actionClosure = { (action: UIAction) in
-        //            print(action.title)
-        //        }
-        //        var menu: [UIMenuElement] = []
-        //        for instrument in instruments {
-        //            menu.append(UIAction(title: instrument.description, handler: actionClosure))
-        //        }
-        //
-        //        subscribeButton.menu = UIMenu(options: .displayInline, children: menu)
-        //
-        //        subscribeButton.showsMenuAsPrimaryAction = true
-        //        subscribeButton.changesSelectionAsPrimaryAction = true
+        guard let instrumentId = selectedInstrument?.id else { return }
+        
+        let message = SubscribeMessageDto(type: "l1-subscription", id: "1", instrumentId: instrumentId, provider: "simulation", subscribe: !subscribed, kinds: ["ask", "bid", "last"])
+        
+        if let jsonData = try? JSONEncoder().encode(message) {
+            let jsonString = String(data: jsonData, encoding: .utf8)!
+            
+            webSocketClient?.sendMessage(jsonString)
+            subscribed.toggle()
+        }
     }
 }
 

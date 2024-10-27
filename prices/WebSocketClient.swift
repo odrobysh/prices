@@ -14,7 +14,6 @@ class WebSocketClient {
 
     func connect() {
         let request = URLRequest(url: URL(string: "\(webSocketURL)\(accessToken)")!)
-        
         webSocketTask = urlSession.webSocketTask(with: request)
         webSocketTask?.resume()
         receiveMessage()
@@ -33,7 +32,7 @@ class WebSocketClient {
                 @unknown default:
                     print("Received unknown message")
                 }
-                // Continue listening for more messages
+
                 self?.receiveMessage()
 
             case .failure(let error):
