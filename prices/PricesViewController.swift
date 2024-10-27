@@ -2,7 +2,7 @@ import UIKit
 
 // connect picker
 // unsubscribeFromPrevious instrument (right before selection)
-
+// default instrument
 // refactor
 
 class PricesViewController: UIViewController {
@@ -14,6 +14,8 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var subscribeButton: UIButton!
     @IBOutlet weak var chartView: ChartView!
     @IBOutlet weak var marketDataStack: UIStackView!
+    @IBOutlet weak var picker: UIPickerView!
+    //let picker = UIPickerView()
     
     private let emptyValue = "--"
     
@@ -51,7 +53,8 @@ class PricesViewController: UIViewController {
         displaySymbol(emptyValue)
         displayPrice(emptyValue)
         displayTime(emptyValue)
-        input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
+ 
+        // input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -71,6 +74,32 @@ class PricesViewController: UIViewController {
         subscribed = false
         subscribeButton.isEnabled = false
         getAccessToken()
+        
+        picker.backgroundColor = .white
+        picker.delegate = self
+        picker.dataSource = self
+        //picker.isHidden = true
+        
+        input.inputView = picker
+        input.tintColor = .clear
+        // input.resignFirstResponder()
+        
+        setupDonePickerButton()
+        
+    }
+    
+    func setupDonePickerButton() {
+        let toolBar = UIToolbar()
+        toolBar.sizeToFit()
+        let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.dismissPicker))
+        toolBar.setItems([button], animated: true)
+        toolBar.isUserInteractionEnabled = true
+        input.inputAccessoryView = toolBar
+    }
+    
+    @objc func dismissPicker() {
+        input.resignFirstResponder()
+        //view.endEditing(true)
     }
     
     @IBAction func subscribeButtonTap() {
@@ -80,14 +109,24 @@ class PricesViewController: UIViewController {
     @objc func inputTap(_ sender: UITapGestureRecognizer) {
         print("inputTap")
         
-        // mock
-        if count > instruments.count - 1 {
-            count = 0
-        } else {
-            count = count + 1
+        if instruments.isEmpty {
+            return
         }
         
-        selectedInstrument = instruments[count]
+        
+        //picker.isHidden = false
+        
+    
+        
+        
+//        // mock
+//        if count > instruments.count - 1 {
+//            count = 0
+//        } else {
+//            count = count + 1
+//        }
+//        
+//        selectedInstrument = instruments[count]
     }
     
     private func getAccessToken() {
@@ -116,6 +155,7 @@ class PricesViewController: UIViewController {
     
     @MainActor func setInstruments(_ newInstruments: [Instrument]) {
         instruments = newInstruments
+        //picker.reloadAllComponents()
         displayDefaultInstrument()
     }
     
@@ -216,6 +256,36 @@ class PricesViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d, h:mm a"
         return formatter.string(from: date)
+    }
+}
+
+extension PricesViewController: UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        //instruments.count
+        10
+    }
+}
+
+extension PricesViewController: UIPickerViewDelegate {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        print("row \(row)")
+        selectedInstrument = instruments[row]
+        // picker.isHidden = true
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        // instruments[row].description
+        "ttt"
+    }
+}
+
+extension PricesViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        picker.reloadAllComponents()
     }
 }
 

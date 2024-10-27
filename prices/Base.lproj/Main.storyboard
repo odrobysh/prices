@@ -81,6 +81,10 @@ BTC/USD</string>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8fH-qz-H50">
+                                <rect key="frame" x="0.0" y="602" width="393" height="216"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </pickerView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -89,10 +93,12 @@ BTC/USD</string>
                             <constraint firstItem="tfU-F8-2d4" firstAttribute="top" secondItem="eDP-P4-LV6" secondAttribute="bottom" constant="8" symbolic="YES" id="4tA-bV-Do6"/>
                             <constraint firstItem="T31-MT-UHI" firstAttribute="centerY" secondItem="W9p-Rc-Zgy" secondAttribute="centerY" id="571-SQ-o8I"/>
                             <constraint firstItem="eDP-P4-LV6" firstAttribute="leading" secondItem="H0H-Mu-k8J" secondAttribute="leading" id="CJh-TW-jtf"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="8fH-qz-H50" secondAttribute="bottom" id="DlD-he-IyC"/>
                             <constraint firstItem="H0H-Mu-k8J" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="Fnp-eO-GJo"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="H0H-Mu-k8J" secondAttribute="trailing" constant="24" id="G1i-dM-4ZN"/>
                             <constraint firstItem="W9p-Rc-Zgy" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="H3l-sa-HRP"/>
                             <constraint firstItem="H0H-Mu-k8J" firstAttribute="top" secondItem="W9p-Rc-Zgy" secondAttribute="bottom" constant="8" symbolic="YES" id="R3C-KJ-Nxi"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8fH-qz-H50" secondAttribute="trailing" id="Vf4-u1-UZ1"/>
                             <constraint firstItem="T31-MT-UHI" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="trailing" constant="16" id="WOw-ZY-P9F"/>
                             <constraint firstItem="aQM-ug-H2y" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="bQG-D0-VHb"/>
                             <constraint firstItem="eDP-P4-LV6" firstAttribute="trailing" secondItem="H0H-Mu-k8J" secondAttribute="trailing" id="ipE-Y4-anp"/>
@@ -103,12 +109,14 @@ BTC/USD</string>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tfU-F8-2d4" secondAttribute="bottom" constant="100" id="tnI-YX-Bw7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="T31-MT-UHI" secondAttribute="trailing" constant="24" id="vI8-AD-5Ca"/>
                             <constraint firstItem="W9p-Rc-Zgy" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="wCC-VO-O2u"/>
+                            <constraint firstItem="8fH-qz-H50" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="xI5-yD-b8D"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="chartView" destination="tfU-F8-2d4" id="cjy-Pl-ftf"/>
                         <outlet property="input" destination="W9p-Rc-Zgy" id="o2e-L3-JwX"/>
                         <outlet property="marketDataStack" destination="aQM-ug-H2y" id="IKT-Nh-ggh"/>
+                        <outlet property="picker" destination="8fH-qz-H50" id="iye-s0-aZw"/>
                         <outlet property="price" destination="gLQ-Ya-KRj" id="ZjZ-ph-2h8"/>
                         <outlet property="subscribeButton" destination="T31-MT-UHI" id="d1x-kq-bvF"/>
                         <outlet property="symbol" destination="31w-YM-NmA" id="j3N-cA-XWF"/>
