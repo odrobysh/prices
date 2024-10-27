@@ -1,5 +1,9 @@
 import UIKit
 
+// unsubscribeFromPrevious instrument (right before selection)
+// connect picker
+// refactor
+
 class PricesViewController: UIViewController {
     
     @IBOutlet weak var input: UITextField!
@@ -8,6 +12,7 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var time: UILabel!
     @IBOutlet weak var subscribeButton: UIButton!
     @IBOutlet weak var chartView: ChartView!
+    @IBOutlet weak var marketDataStack: UIStackView!
     
     private let emptyValue = "--"
     
@@ -50,6 +55,15 @@ class PricesViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        marketDataStack.layer.borderWidth = 2
+        marketDataStack.layer.borderColor = UIColor.black.cgColor
+        marketDataStack.layer.cornerRadius = 5
+        
+        chartView.layer.borderWidth = 2
+        chartView.layer.borderColor = UIColor.black.cgColor
+        chartView.layer.cornerRadius = 20
+        
         subscribed = false
         subscribeButton.isEnabled = false
         getAccessToken()
@@ -149,6 +163,7 @@ class PricesViewController: UIViewController {
         
         let message = subscriptionMessage(instrumentId: instrumentId, subscribe: subscribe)
         sendSubscriptionMessage(message)
+        subscribed = subscribe
     }
     
     private func sendSubscriptionMessage(_ message: SubscribeMessageDto) {
@@ -156,7 +171,6 @@ class PricesViewController: UIViewController {
             let jsonString = String(data: jsonData, encoding: .utf8)!
             
             webSocketClient?.sendMessage(jsonString)
-            subscribed.toggle()
         }
     }
     
@@ -171,8 +185,6 @@ class PricesViewController: UIViewController {
             displaySymbol(selectedInstrument.symbol)
             displayPrice(emptyValue)
             displayTime(emptyValue)
-            
-            subscribe(false)
         }
         
         updateBars()
