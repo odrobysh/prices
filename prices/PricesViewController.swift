@@ -17,6 +17,7 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var price: UILabel!
     @IBOutlet weak var time: UILabel!
     @IBOutlet weak var subscribeButton: UIButton!
+    @IBOutlet weak var chartView: ChartView!
     
     //mock
     var count = 0
@@ -62,7 +63,11 @@ class PricesViewController: UIViewController {
             price.text = "Price\n--"
             time.text = "Time\n--"
         }
+        
+        getBars()
     }
+    
+
     
     private func displayIsSubscribed() {
         subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
@@ -96,6 +101,7 @@ class PricesViewController: UIViewController {
         subscribed = false
         subscribeButton.isEnabled = false
         getAccessToken()
+        // chartView.displayChart()
        
     }
     
@@ -118,6 +124,27 @@ class PricesViewController: UIViewController {
             }
         }
     }
+    
+    private func getBars() {
+        guard let accessToken, let selectedInstrumentId = selectedInstrument?.id else { return }
+        
+        Task.detached { [weak self] in
+            let bars = try? await Net.getBars(accessToken, selectedInstrumentId)
+            if let bars {
+                print("we have \(bars.count) bars")
+                await self?.setBars(bars)
+            }
+        }
+    }
+    
+    @MainActor func setBars(_ bars: [Bar]) {
+        // todo: draw chart
+        
+        // drawSimpleChart(bars)
+        chartView.drawSimpleChart(bars)
+    }
+    
+
     
     func connectWebSocket(token: String) {
         if webSocketClient == nil {

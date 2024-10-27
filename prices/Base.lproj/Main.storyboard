@@ -65,23 +65,32 @@ BTC/USD</string>
                                     </label>
                                 </subviews>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tfU-F8-2d4" customClass="ChartView" customModule="prices" customModuleProvider="target">
+                                <rect key="frame" x="8" y="186.66666666666669" width="377" height="531.33333333333326"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="tfU-F8-2d4" secondAttribute="trailing" constant="8" id="3e5-IR-aUD"/>
                             <constraint firstItem="T31-MT-UHI" firstAttribute="centerY" secondItem="W9p-Rc-Zgy" secondAttribute="centerY" id="571-SQ-o8I"/>
                             <constraint firstItem="H0H-Mu-k8J" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="Fnp-eO-GJo"/>
                             <constraint firstItem="W9p-Rc-Zgy" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="H3l-sa-HRP"/>
                             <constraint firstItem="H0H-Mu-k8J" firstAttribute="top" secondItem="W9p-Rc-Zgy" secondAttribute="bottom" constant="8" symbolic="YES" id="R3C-KJ-Nxi"/>
                             <constraint firstItem="T31-MT-UHI" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="trailing" constant="12" id="UQW-Pu-8Pf"/>
+                            <constraint firstItem="tfU-F8-2d4" firstAttribute="top" secondItem="aQM-ug-H2y" secondAttribute="bottom" constant="20" id="aSL-x4-z8O"/>
                             <constraint firstItem="aQM-ug-H2y" firstAttribute="leading" secondItem="W9p-Rc-Zgy" secondAttribute="leading" id="bQG-D0-VHb"/>
+                            <constraint firstItem="tfU-F8-2d4" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="8" id="qu7-Za-NQI"/>
                             <constraint firstItem="aQM-ug-H2y" firstAttribute="top" secondItem="H0H-Mu-k8J" secondAttribute="bottom" constant="8" symbolic="YES" id="rEl-pf-1x6"/>
                             <constraint firstItem="aQM-ug-H2y" firstAttribute="trailing" secondItem="T31-MT-UHI" secondAttribute="trailing" id="sTv-hm-3O0"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tfU-F8-2d4" secondAttribute="bottom" constant="100" id="tnI-YX-Bw7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="T31-MT-UHI" secondAttribute="trailing" constant="24" id="vI8-AD-5Ca"/>
                             <constraint firstItem="W9p-Rc-Zgy" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="24" id="wCC-VO-O2u"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="chartView" destination="tfU-F8-2d4" id="cjy-Pl-ftf"/>
                         <outlet property="input" destination="W9p-Rc-Zgy" id="o2e-L3-JwX"/>
                         <outlet property="price" destination="gLQ-Ya-KRj" id="ZjZ-ph-2h8"/>
                         <outlet property="subscribeButton" destination="T31-MT-UHI" id="d1x-kq-bvF"/>
