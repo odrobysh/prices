@@ -1,7 +1,5 @@
 import UIKit
 
-// refactor
-
 class PricesViewController: UIViewController {
     
     @IBOutlet weak var input: UITextField!
