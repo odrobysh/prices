@@ -1,8 +1,5 @@
 import UIKit
 
-// connect picker
-// unsubscribeFromPrevious instrument (right before selection)
-// default instrument
 // refactor
 
 class PricesViewController: UIViewController {
@@ -14,14 +11,9 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var subscribeButton: UIButton!
     @IBOutlet weak var chartView: ChartView!
     @IBOutlet weak var marketDataStack: UIStackView!
-    @IBOutlet weak var picker: UIPickerView!
-    //let picker = UIPickerView()
-    
-    private let emptyValue = "--"
-    
-    //mock
-    var count = 0
-    
+    let picker = UIPickerView()
+    let emptyValue = "--"
+    let defaultInstrumentId = "ebefe2c7-5ac9-43bb-a8b7-4a97bf2c2576"
     
     var subscribed = false {
         didSet {
@@ -53,8 +45,6 @@ class PricesViewController: UIViewController {
         displaySymbol(emptyValue)
         displayPrice(emptyValue)
         displayTime(emptyValue)
- 
-        // input.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.inputTap(_:))))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -78,14 +68,11 @@ class PricesViewController: UIViewController {
         picker.backgroundColor = .white
         picker.delegate = self
         picker.dataSource = self
-        //picker.isHidden = true
         
         input.inputView = picker
         input.tintColor = .clear
-        // input.resignFirstResponder()
         
         setupDonePickerButton()
-        
     }
     
     func setupDonePickerButton() {
@@ -99,34 +86,10 @@ class PricesViewController: UIViewController {
     
     @objc func dismissPicker() {
         input.resignFirstResponder()
-        //view.endEditing(true)
     }
     
     @IBAction func subscribeButtonTap() {
         subscribe(!subscribed)
-    }
-    
-    @objc func inputTap(_ sender: UITapGestureRecognizer) {
-        print("inputTap")
-        
-        if instruments.isEmpty {
-            return
-        }
-        
-        
-        //picker.isHidden = false
-        
-    
-        
-        
-//        // mock
-//        if count > instruments.count - 1 {
-//            count = 0
-//        } else {
-//            count = count + 1
-//        }
-//        
-//        selectedInstrument = instruments[count]
     }
     
     private func getAccessToken() {
@@ -155,8 +118,12 @@ class PricesViewController: UIViewController {
     
     @MainActor func setInstruments(_ newInstruments: [Instrument]) {
         instruments = newInstruments
-        //picker.reloadAllComponents()
-        displayDefaultInstrument()
+        let selectedInstrumentIndex = instruments.firstIndex { $0.id == defaultInstrumentId }
+        
+        if let selectedInstrumentIndex {
+            selectedInstrument = instruments[selectedInstrumentIndex]
+            picker.selectRow(selectedInstrumentIndex, inComponent: 0, animated: false)
+        }
     }
     
     private func updateBars() {
@@ -165,7 +132,6 @@ class PricesViewController: UIViewController {
         Task.detached { [weak self] in
             let bars = try? await Net.getBars(accessToken, selectedInstrumentId)
             if let bars {
-                print("we have \(bars.count) bars")
                 await self?.setBars(bars)
             }
         }
@@ -246,12 +212,6 @@ class PricesViewController: UIViewController {
         self.time.text = "Time\n\(time)"
     }
     
-    private func displayDefaultInstrument() {
-        if let defaultInstrument = instruments.first {
-            selectedInstrument = defaultInstrument
-        }
-    }
-    
     private func formattedTime(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d, h:mm a"
@@ -265,21 +225,20 @@ extension PricesViewController: UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        //instruments.count
-        10
+        instruments.count
     }
 }
 
 extension PricesViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        print("row \(row)")
+        if subscribed {
+            subscribe(false)
+        }
         selectedInstrument = instruments[row]
-        // picker.isHidden = true
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        // instruments[row].description
-        "ttt"
+        instruments[row].description
     }
 }
 
