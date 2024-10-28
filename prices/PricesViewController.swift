@@ -16,9 +16,9 @@ class PricesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        viewModel.getAccessToken()
+
         setupBindings()
+        viewModel.getAccessToken()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -32,47 +32,16 @@ class PricesViewController: UIViewController {
     }
     
     private func setupBindings() {
-        viewModel.onInstrumentsReceived = { [weak self] in
-            DispatchQueue.main.async {
-                self?.picker.reloadAllComponents()
-            }
+        viewModel.onInstrumentsReceived = { [weak self] in self?.onMainThread { self?.picker.reloadAllComponents()}}
+        viewModel.onInstrumentSelected = { [weak self] instrument in self?.onMainThread { self?.displaySelectedInstrument(instrument)}}
+        viewModel.onPriceUpdated = { [weak self] price in self?.onMainThread { self?.displayPrice(price)}}
+        viewModel.onTimeUpdated = { [weak self] time in self?.onMainThread { self?.displayTime(time)}}
+        viewModel.onBarsUpdated = { [weak self] bars in self?.onMainThread { self?.displayChart(bars)}}
+        viewModel.onDefaultInstrumentIndex = {
+            [weak self] index in self?.onMainThread { self?.picker.selectRow(index, inComponent: 0, animated: false)}
         }
-        
-        viewModel.onInstrumentSelected = { [weak self] in
-            DispatchQueue.main.async {
-                self?.displaySelectedInstrument()
-            }
-        }
-        
-        viewModel.onPriceUpdated = { [weak self] price in
-            DispatchQueue.main.async {
-                self?.displayPrice(price)
-            }
-        }
-        
-        viewModel.onTimeUpdated = { [weak self] time in
-            DispatchQueue.main.async {
-                self?.displayTime(time)
-            }
-        }
-        
-        viewModel.onBarsUpdated = { [weak self] bars in
-            DispatchQueue.main.async {
-                self?.displayChart(bars)
-            }
-        }
-        
-        viewModel.onDefaultInstrumentIndex = { [weak self] index in
-            DispatchQueue.main.async {
-                self?.picker.selectRow(index, inComponent: 0, animated: false)
-            }
-        }
-        
         viewModel.onSubscriptionStatusChanged = { [weak self] isSubscribed in
-            DispatchQueue.main.async {
-                self?.subscribeButton.setTitle(isSubscribed ? "Unsubscribe" : "Subscribe", for: .normal)
-            }
-        }
+            self?.onMainThread { self?.subscribeButton.setTitle(isSubscribed ? "Unsubscribe" : "Subscribe", for: .normal)}}
     }
     
     private func onMainThread(_ execute: @escaping () -> Void) {
@@ -111,14 +80,12 @@ class PricesViewController: UIViewController {
         chartView.updateChart(bars)
     }
     
-    private func displaySelectedInstrument() {
-        if let selectedInstrument = viewModel.selectedInstrument {
-            input.text = selectedInstrument.description
-            subscribeButton.isEnabled = true
-            displaySymbol(selectedInstrument.symbol)
-            displayPrice(emptyValue)
-            displayTime(emptyValue)
-        }
+    private func displaySelectedInstrument(_ instrument: Instrument) {
+        input.text = instrument.description
+        subscribeButton.isEnabled = true
+        displaySymbol(instrument.symbol)
+        displayPrice(emptyValue)
+        displayTime(emptyValue)
     }
     
     private func setupDonePickerButton() {
@@ -159,8 +126,7 @@ extension PricesViewController: UIPickerViewDataSource {
 
 extension PricesViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        viewModel.unsubscribe()
-        viewModel.selectedInstrument = viewModel.instruments[row]
+        viewModel.instrumentSelected(id: row)
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
