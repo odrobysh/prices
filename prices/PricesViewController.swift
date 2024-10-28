@@ -11,37 +11,75 @@ class PricesViewController: UIViewController {
     @IBOutlet weak var marketDataStack: UIStackView!
     let picker = UIPickerView()
     let emptyValue = "--"
-    let defaultInstrumentId = "ebefe2c7-5ac9-43bb-a8b7-4a97bf2c2576"
     
-    var httpClient = HTTPClient()
-    var webSocketClient: WebSocketClient?
+    private let viewModel = PricesViewModel()
     
-    var accessToken: String? {
-        didSet {
-            if let accessToken {
-                connectWebSocket(token: accessToken)
-                getInstruments(token: accessToken)
-            }
-        }
-    }
-    
-    var instruments: [Instrument] = []
-    
-    var selectedInstrument: Instrument? {
-        didSet {
-            displaySelectedInstrument()
-        }
-    }
-    
-    var subscribed = false {
-        didSet {
-            subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
-        }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        viewModel.getAccessToken()
+        setupBindings()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        setupViews()
+    }
+    
+    @IBAction func subscribeButtonTap() {
+        viewModel.toggleSubscription()
+    }
+    
+    private func setupBindings() {
+        viewModel.onInstrumentsReceived = { [weak self] in
+            DispatchQueue.main.async {
+                self?.picker.reloadAllComponents()
+            }
+        }
+        
+        viewModel.onInstrumentSelected = { [weak self] in
+            DispatchQueue.main.async {
+                self?.displaySelectedInstrument()
+            }
+        }
+        
+        viewModel.onPriceUpdated = { [weak self] price in
+            DispatchQueue.main.async {
+                self?.displayPrice(price)
+            }
+        }
+        
+        viewModel.onTimeUpdated = { [weak self] time in
+            DispatchQueue.main.async {
+                self?.displayTime(time)
+            }
+        }
+        
+        viewModel.onBarsUpdated = { [weak self] bars in
+            DispatchQueue.main.async {
+                self?.displayChart(bars)
+            }
+        }
+        
+        viewModel.onDefaultInstrumentIndex = { [weak self] index in
+            DispatchQueue.main.async {
+                self?.picker.selectRow(index, inComponent: 0, animated: false)
+            }
+        }
+        
+        viewModel.onSubscriptionStatusChanged = { [weak self] isSubscribed in
+            DispatchQueue.main.async {
+                self?.subscribeButton.setTitle(isSubscribed ? "Unsubscribe" : "Subscribe", for: .normal)
+            }
+        }
+    }
+    
+    private func onMainThread(_ execute: @escaping () -> Void) {
+        DispatchQueue.main.async(execute: execute)
+    }
+    
+    private func setupViews() {
         displaySymbol(emptyValue)
         displayPrice(emptyValue)
         displayTime(emptyValue)
@@ -57,9 +95,7 @@ class PricesViewController: UIViewController {
         input.layer.borderWidth = 2
         input.layer.borderColor = UIColor.black.cgColor
         
-        subscribed = false
         subscribeButton.isEnabled = false
-        getAccessToken()
         
         picker.backgroundColor = .white
         picker.delegate = self
@@ -71,121 +107,18 @@ class PricesViewController: UIViewController {
         setupDonePickerButton()
     }
     
-    @IBAction func subscribeButtonTap() {
-        subscribe(!subscribed)
-    }
-    
-    private func getAccessToken() {
-        Task.detached { [weak self] in
-            let token = try? await self?.httpClient.getAccessToken()
-            if let token {
-                print("we have token")
-                await self?.setAccessToken(token)
-            }
-        }
-    }
-    
-    @MainActor func setAccessToken(_ token: String) {
-        accessToken = token
-    }
-    
-    private func getInstruments(token: String) {
-        Task.detached { [weak self] in
-            let instruments = try? await self?.httpClient.getInstruments(token)
-            if let instruments {
-                await self?.setInstruments(instruments)
-            }
-        }
-    }
-    
-    @MainActor func setInstruments(_ newInstruments: [Instrument]) {
-        instruments = newInstruments
-        setDefaultInstrument()
-    }
-    
-    private func setDefaultInstrument() {
-        let defaultInstrumentIndex = instruments.firstIndex { $0.id == defaultInstrumentId }
-        
-        if let defaultInstrumentIndex {
-            selectedInstrument = instruments[defaultInstrumentIndex]
-            picker.selectRow(defaultInstrumentIndex, inComponent: 0, animated: false)
-        }
-    }
-    
-    private func updateBars() {
-        guard let accessToken, let selectedInstrumentId = selectedInstrument?.id else { return }
-        
-        Task.detached { [weak self] in
-            let bars = try? await self?.httpClient.getBars(accessToken, selectedInstrumentId)
-            if let bars {
-                await self?.setBars(bars)
-            }
-        }
-    }
-    
-    @MainActor func setBars(_ bars: [Bar]) {
+    private func displayChart(_ bars: [Bar]) {
         chartView.updateChart(bars)
     }
     
-    private func connectWebSocket(token: String) {
-        if webSocketClient == nil {
-            webSocketClient = WebSocketClient(accessToken: token)
-            webSocketClient?.connect()
-            
-            webSocketClient?.onMessageReceived = { [weak self] message in
-                self?.updateMarketData(message)
-            }
-        }
-    }
-    
-    private func updateMarketData(_ message: String) {
-        guard subscribed else { return }
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXXXX"
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        
-        guard let instrumentUpdate = try? decoder.decode(InstrumentUpdateDto.self, from: message.data(using: .utf8)!) else { return }
-        
-        guard let quotation = instrumentUpdate.ask ?? instrumentUpdate.bid else { return }
-        
-        DispatchQueue.main.async { () -> Void in
-            self.price.text = "Price\n\(quotation.price)"
-            self.time.text = "Time\n\(self.formattedTime(from: quotation.timestamp))"
-        }
-    }
-    
-    private func subscribe(_ subscribe: Bool) {
-        guard let instrumentId = selectedInstrument?.id else { return }
-        
-        let message = subscriptionMessage(instrumentId: instrumentId, subscribe: subscribe)
-        sendSubscriptionMessage(message)
-        subscribed = subscribe
-    }
-    
-    private func sendSubscriptionMessage(_ message: SubscribeMessageDto) {
-        if let jsonData = try? JSONEncoder().encode(message) {
-            let jsonString = String(data: jsonData, encoding: .utf8)!
-            
-            webSocketClient?.sendMessage(jsonString)
-        }
-    }
-    
-    private func subscriptionMessage(instrumentId: String, subscribe: Bool) -> SubscribeMessageDto {
-        return SubscribeMessageDto(type: "l1-subscription", id: "1", instrumentId: instrumentId, provider: "simulation", subscribe: subscribe, kinds: ["ask", "bid", "last"])
-    }
-    
     private func displaySelectedInstrument() {
-        if let selectedInstrument {
+        if let selectedInstrument = viewModel.selectedInstrument {
             input.text = selectedInstrument.description
             subscribeButton.isEnabled = true
             displaySymbol(selectedInstrument.symbol)
             displayPrice(emptyValue)
             displayTime(emptyValue)
         }
-        
-        updateBars()
     }
     
     private func setupDonePickerButton() {
@@ -212,12 +145,6 @@ class PricesViewController: UIViewController {
     private func displayTime(_ time: String) {
         self.time.text = "Time\n\(time)"
     }
-    
-    private func formattedTime(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, h:mm a"
-        return formatter.string(from: date)
-    }
 }
 
 extension PricesViewController: UIPickerViewDataSource {
@@ -226,20 +153,18 @@ extension PricesViewController: UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        instruments.count
+        viewModel.instruments.count
     }
 }
 
 extension PricesViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if subscribed {
-            subscribe(false)
-        }
-        selectedInstrument = instruments[row]
+        viewModel.unsubscribe()
+        viewModel.selectedInstrument = viewModel.instruments[row]
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        instruments[row].description
+        viewModel.instruments[row].description
     }
 }
 
