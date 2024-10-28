@@ -25,7 +25,6 @@ class WebSocketClient {
             case .success(let message):
                 switch message {
                 case .string(let text):
-                    print("Received text: \(text)")
                     self?.onMessageReceived?(text)
                 case .data(let data):
                     print("Received binary data: \(data)")
