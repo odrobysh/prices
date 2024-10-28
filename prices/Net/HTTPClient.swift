@@ -1,8 +1,8 @@
 import Foundation
 
-public struct Net {
-    static let uri = "https://platform.fintacharts.com"
-    static var getAccessToken: () async throws -> String = {
+public class HTTPClient {
+    let uri = "https://platform.fintacharts.com"
+    func getAccessToken() async throws -> String {
         let url = URL(string: "\(uri)/identity/realms/fintatech/protocol/openid-connect/token")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -21,7 +21,7 @@ public struct Net {
         return fetchedData.accessToken
     }
     
-    static var getInstruments: (_ token: String) async throws -> [Instrument] = { token in
+    func getInstruments(_ token: String) async throws -> [Instrument] {
         let url = URL(string: "\(uri)/api/instruments/v1/instruments?provider=simulation&kind=forex")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -31,7 +31,7 @@ public struct Net {
         return fetchedData.data
     }
     
-    static var getBars: (_ token: String, _ instrumentId: String) async throws -> [Bar] = { token, instrumentId in
+    func getBars(_ token: String, _ instrumentId: String) async throws -> [Bar] {
         let url = URL(string: "\(uri)/api/bars/v1/bars/count-back?instrumentId=\(instrumentId)&provider=simulation&interval=1&periodicity=minute&barsCount=100")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

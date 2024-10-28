@@ -13,12 +13,7 @@ class PricesViewController: UIViewController {
     let emptyValue = "--"
     let defaultInstrumentId = "ebefe2c7-5ac9-43bb-a8b7-4a97bf2c2576"
     
-    var subscribed = false {
-        didSet {
-            subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
-        }
-    }
-    
+    var httpClient = HTTPClient()
     var webSocketClient: WebSocketClient?
     var accessToken: String? {
         didSet {
@@ -37,16 +32,18 @@ class PricesViewController: UIViewController {
         }
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        displaySymbol(emptyValue)
-        displayPrice(emptyValue)
-        displayTime(emptyValue)
+    var subscribed = false {
+        didSet {
+            subscribeButton.setTitle(subscribed ? "Unsubscribe" : "Subscribe", for: .normal)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        displaySymbol(emptyValue)
+        displayPrice(emptyValue)
+        displayTime(emptyValue)
         
         marketDataStack.layer.borderWidth = 2
         marketDataStack.layer.borderColor = UIColor.black.cgColor
@@ -73,26 +70,13 @@ class PricesViewController: UIViewController {
         setupDonePickerButton()
     }
     
-    func setupDonePickerButton() {
-        let toolBar = UIToolbar()
-        toolBar.sizeToFit()
-        let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.dismissPicker))
-        toolBar.setItems([button], animated: true)
-        toolBar.isUserInteractionEnabled = true
-        input.inputAccessoryView = toolBar
-    }
-    
-    @objc func dismissPicker() {
-        input.resignFirstResponder()
-    }
-    
     @IBAction func subscribeButtonTap() {
         subscribe(!subscribed)
     }
     
     private func getAccessToken() {
         Task.detached { [weak self] in
-            let token = try? await Net.getAccessToken()
+            let token = try? await self?.httpClient.getAccessToken()
             if let token {
                 print("we have token")
                 await self?.setAccessToken(token)
@@ -106,7 +90,7 @@ class PricesViewController: UIViewController {
     
     private func getInstruments(token: String) {
         Task.detached { [weak self] in
-            let instruments = try? await Net.getInstruments(token)
+            let instruments = try? await self?.httpClient.getInstruments(token)
             if let instruments {
                 print("we have instruments")
                 await self?.setInstruments(instruments)
@@ -128,7 +112,7 @@ class PricesViewController: UIViewController {
         guard let accessToken, let selectedInstrumentId = selectedInstrument?.id else { return }
         
         Task.detached { [weak self] in
-            let bars = try? await Net.getBars(accessToken, selectedInstrumentId)
+            let bars = try? await self?.httpClient.getBars(accessToken, selectedInstrumentId)
             if let bars {
                 await self?.setBars(bars)
             }
@@ -151,6 +135,8 @@ class PricesViewController: UIViewController {
     }
     
     private func updateMarketData(_ message: String) {
+        guard subscribed else { return }
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXXXX"
         let decoder = JSONDecoder()
@@ -196,6 +182,19 @@ class PricesViewController: UIViewController {
         }
         
         updateBars()
+    }
+    
+    private func setupDonePickerButton() {
+        let toolBar = UIToolbar()
+        toolBar.sizeToFit()
+        let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.dismissPicker))
+        toolBar.setItems([button], animated: true)
+        toolBar.isUserInteractionEnabled = true
+        input.inputAccessoryView = toolBar
+    }
+    
+    @objc func dismissPicker() {
+        input.resignFirstResponder()
     }
     
     private func displaySymbol(_ symbol: String) {
