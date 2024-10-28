@@ -15,6 +15,7 @@ class PricesViewController: UIViewController {
     
     var httpClient = HTTPClient()
     var webSocketClient: WebSocketClient?
+    
     var accessToken: String? {
         didSet {
             if let accessToken {
@@ -92,7 +93,6 @@ class PricesViewController: UIViewController {
         Task.detached { [weak self] in
             let instruments = try? await self?.httpClient.getInstruments(token)
             if let instruments {
-                print("we have instruments")
                 await self?.setInstruments(instruments)
             }
         }
@@ -100,11 +100,15 @@ class PricesViewController: UIViewController {
     
     @MainActor func setInstruments(_ newInstruments: [Instrument]) {
         instruments = newInstruments
-        let selectedInstrumentIndex = instruments.firstIndex { $0.id == defaultInstrumentId }
+        setDefaultInstrument()
+    }
+    
+    private func setDefaultInstrument() {
+        let defaultInstrumentIndex = instruments.firstIndex { $0.id == defaultInstrumentId }
         
-        if let selectedInstrumentIndex {
-            selectedInstrument = instruments[selectedInstrumentIndex]
-            picker.selectRow(selectedInstrumentIndex, inComponent: 0, animated: false)
+        if let defaultInstrumentIndex {
+            selectedInstrument = instruments[defaultInstrumentIndex]
+            picker.selectRow(defaultInstrumentIndex, inComponent: 0, animated: false)
         }
     }
     
